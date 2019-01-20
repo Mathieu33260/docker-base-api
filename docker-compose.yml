@@ -1,0 +1,50 @@
+version: "3.1"
+services:
+
+  db:
+    image: mariadb
+    container_name: testapi-mysql
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-data:/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: testapi
+    networks:
+      - testapi-network
+
+  webserver:
+    image: nginx:alpine
+    container_name: testapi-webserver
+    working_dir: /api
+    volumes:
+      - ../api:/api
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf
+    ports:
+      - "80:80"
+    depends_on:
+      - php-fpm
+    networks:
+      - testapi-network
+
+  php-fpm:
+    build: php-fpm
+    container_name: testapi-php-fpm
+    working_dir: /api
+    depends_on:
+      - db
+    volumes:
+      - ../api:/api
+      - ./php-fpm/php-ini-overrides.ini:/etc/php/7.2/fpm/conf.d/99-overrides.ini
+    networks:
+      - testapi-network
+
+networks:
+  testapi-network:
+    driver: bridge
+
+volumes:
+  db:
+    driver: "local"
+  mysql-data: {}
