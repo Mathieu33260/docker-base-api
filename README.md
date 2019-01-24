@@ -35,6 +35,7 @@ Puis rentrez ces commandes :
 $ docker exec -it testapi-php-fpm bash
 cp .env.dist .env
 composer install
+php bin/console doctrine:schema:create
 ```
 
 ### Requêter l'api
